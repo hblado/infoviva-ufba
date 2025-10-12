@@ -43,7 +43,7 @@ RUN npm run build
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Rodar migrations (opcional, força execução)
-RUN php artisan migrate --force
+# RUN php artisan migrate --force
 
 # =========================
 # Stage 2: Production
