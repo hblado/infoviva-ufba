@@ -1,73 +1,70 @@
 # =========================
-# Dockerfile completo Laravel + Node/DaisyUI
+# Dockerfile Laravel + Node para Railway
 # =========================
 
-# Stage 1: Build
-FROM php:8.1-fpm AS build
+# -------------------------
+# 1. Base image com PHP e extensões necessárias
+# -------------------------
+FROM php:8.1-fpm
 
-# Instalar dependências do sistema
+# -------------------------
+# 2. Instalar dependências do sistema
+# -------------------------
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
-    zip \
     curl \
-    libzip-dev \
-    libonig-dev \
-    libicu-dev \
     libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    libzip-dev \
     nodejs \
     npm \
-    && docker-php-ext-install pdo_mysql mbstring intl zip exif pcntl bcmath gd \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip \
+    && rm -rf /var/lib/apt/lists/*
 
-# Instalar Composer
-COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
+# -------------------------
+# 3. Instalar Composer globalmente
+# -------------------------
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Definir diretório de trabalho
+# -------------------------
+# 4. Definir diretório da aplicação
+# -------------------------
 WORKDIR /var/www/html
 
-# Copiar composer.json, composer.lock e código da aplicação
-COPY composer.json composer.lock ./
+# -------------------------
+# 5. Copiar arquivos da aplicação
+# -------------------------
 COPY . .
 
-# Instalar dependências PHP
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-plugins
+# -------------------------
+# 6. Instalar dependências PHP e Node
+# -------------------------
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist \
+    && npm install \
+    && npm run build
 
-# Instalar dependências Node.js e build dos assets
-RUN npm install
-RUN npm run build
+# -------------------------
+# 7. Configurar permissões
+# -------------------------
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Definir permissões corretas para Laravel
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-
-# Rodar migrations (opcional, força execução)
+# -------------------------
+# 8. Rodar migrations (opcional)
+#    Se você quiser rodar migrations durante o deploy, descomente a linha abaixo
+# -------------------------
 # RUN php artisan migrate --force
 
-# =========================
-# Stage 2: Production
-# =========================
-FROM php:8.1-fpm
+# -------------------------
+# 9. Configurar Laravel para ser servido
+# -------------------------
+# O Railway disponibiliza a porta via variável de ambiente PORT
+ENV APP_PORT=${PORT:-8080}
 
-WORKDIR /var/www/html
-
-# Copiar código e dependências do stage de build
-COPY --from=build /var/www/html /var/www/html
-
-# Instalar extensões necessárias no runtime
-RUN apt-get update && apt-get install -y \
-    libzip-dev \
-    libonig-dev \
-    libicu-dev \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    && docker-php-ext-install pdo_mysql mbstring intl zip exif pcntl bcmath gd \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Expor porta do PHP-FPM
-EXPOSE 9000
-
-# Entrypoint
-CMD ["php-fpm"]
+# -------------------------
+# 10. Comando final de execução
+# -------------------------
+CMD php artisan serve --host=0.0.0.0 --port=$APP_PORT
