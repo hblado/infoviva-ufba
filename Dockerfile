@@ -7,18 +7,24 @@
 # =========================
 FROM php:8.1-fpm AS build
 
-# Instalar extensões PHP necessárias e dependências do sistema
-RUN apt-get update && apt-get install -y \
+# Instalar dependências do sistema e extensões PHP
+RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     unzip \
     curl \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    build-essential \
     zip \
     nodejs \
     npm \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
+    && rm -rf /var/lib/apt/lists/*
 
 # Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -50,12 +56,17 @@ RUN npm run build
 FROM php:8.1-fpm
 
 # Instalar extensões PHP necessárias
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
     zip \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
+    && rm -rf /var/lib/apt/lists/*
 
 # Definir diretório da aplicação
 WORKDIR /app
@@ -63,7 +74,7 @@ WORKDIR /app
 # Copiar arquivos PHP + vendor + assets do build
 COPY --from=build /app /app
 
-# Permissões (se necessário)
+# Permissões
 RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
 # Expor porta
