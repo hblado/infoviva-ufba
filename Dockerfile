@@ -28,14 +28,12 @@ COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 # Definir diretório de trabalho
 WORKDIR /var/www/html
 
-# Copiar arquivos de dependência do PHP
+# Copiar composer.json, composer.lock e código da aplicação
 COPY composer.json composer.lock ./
+COPY . .
 
 # Instalar dependências PHP
-RUN composer install --no-dev --optimize-autoloader
-
-# Copiar todo o código da aplicação
-COPY . .
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-plugins
 
 # Instalar dependências Node.js e build dos assets
 RUN npm install
