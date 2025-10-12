@@ -42,7 +42,7 @@ COPY --from=build /app/public/build ./public/build
 RUN COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader
 
 # Gerar key do Laravel se não existir
-RUN php artisan key:generate
+#RUN php artisan key:generate
 
 # Rodar migrations (se o banco estiver disponível)
 # RUN php artisan migrate --force
