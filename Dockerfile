@@ -10,22 +10,25 @@ RUN apt-get update && apt-get install -y \
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Diretório da aplicação
-WORKDIR /var/www/html
+WWORKDIR /var/www/html
 
-# Copiar arquivos do Composer
+# Copiar arquivos de Composer primeiro
 COPY composer.json composer.lock ./
 
 # Instalar dependências PHP
 RUN composer install --no-dev --optimize-autoloader
 
-# Copiar todo o código da aplicação
+# Agora copiar todo o código da aplicação
 COPY . .
 
-# Instalar dependências Node e compilar assets
+# Definir permissões
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Build assets do Node.js
 RUN npm install
 RUN npm run build
 
-# Rodar migrations (ajustar se não quiser forçar em produção)
+# Rodar migrations (se quiser forçar)
 RUN php artisan migrate --force
 
 # --- Stage 2: Produção ---
