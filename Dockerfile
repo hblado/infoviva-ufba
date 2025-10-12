@@ -26,6 +26,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
     && rm -rf /var/lib/apt/lists/*
 
+# Copiar package.json e package-lock.json
+COPY package*.json ./
+
+# Instalar dependências Node
+RUN npm install
+
+# Copiar os arquivos do Vite e do front-end
+COPY vite.config.js ./
+COPY resources resources
+
+# Gerar build dos assets
+RUN npm run build
+
 # Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
