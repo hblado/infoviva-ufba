@@ -1,51 +1,38 @@
-# -----------------------------
-# Etapa 1: Build do front (Vite)
-# -----------------------------
-FROM node:18-alpine AS build-frontend
+# --- Stage 1: Build ---
+FROM php:8.1-fpm AS build
 
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
+# Instalar extensões e dependências do sistema
+RUN apt-get update && apt-get install -y \
+    git unzip libzip-dev npm nodejs && \
+    docker-php-ext-install pdo pdo_mysql zip
+
+# Configurar diretório da aplicação
+WORKDIR /var/www/html
+
+# Copiar arquivos composer
+COPY composer.json composer.lock ./
+
+# Instalar dependências PHP
+RUN composer install --no-dev --optimize-autoloader
+
+# Copiar todo o código
 COPY . .
+
+# Instalar dependências Node e gerar assets
+RUN npm install
 RUN npm run build
 
+# Rodar migrations (opcional, mas cuidado com produção!)
+RUN php artisan migrate --force
 
-# -----------------------------
-# Etapa 2: Build do backend PHP/Laravel
-# -----------------------------
+# --- Stage 2: Serve ---
 FROM php:8.1-fpm
-
-# Instalar dependências básicas e extensões PHP
-RUN apt-get update && apt-get install -y \
-    git curl zip unzip libpng-dev libonig-dev libxml2-dev libzip-dev \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
-    && rm -rf /var/lib/apt/lists/*
-
-# Instalar Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copiar arquivos do Laravel
-COPY . .
+# Copiar tudo do stage build
+COPY --from=build /var/www/html /var/www/html
 
-# Copiar assets compilados do front
-COPY --from=build-frontend /app/public/build /var/www/html/public/build
-
-# Instalar dependências do Laravel
-RUN composer install --no-dev --optimize-autoloader
-
-# Definir permissões corretas (storage e cache)
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-
-# Variável de ambiente do Laravel
-ENV APP_ENV=production
-ENV APP_DEBUG=false
-ENV APP_KEY=base64:placeholderkey==
-ENV PORT=8000
-
-# Expor a porta padrão
-EXPOSE 8000
-
-# Comando de inicialização
-CMD php artisan serve --host=0.0.0.0 --port=${PORT}
+# Expor porta e iniciar php-fpm
+EXPOSE 9000
+CMD ["php-fpm"]
