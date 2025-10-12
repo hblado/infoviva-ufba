@@ -1,49 +1,75 @@
-# --- Stage 1: Build ---
+# =========================
+# Dockerfile completo Laravel + Node/DaisyUI
+# =========================
+
+# Stage 1: Build
 FROM php:8.1-fpm AS build
 
-# Instalar dependências do sistema e extensões PHP
+# Instalar dependências do sistema
 RUN apt-get update && apt-get install -y \
-    git unzip curl libzip-dev nodejs npm \
-    && docker-php-ext-install pdo pdo_mysql zip
+    git \
+    unzip \
+    zip \
+    curl \
+    libzip-dev \
+    libonig-dev \
+    libicu-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    nodejs \
+    npm \
+    && docker-php-ext-install pdo_mysql mbstring intl zip exif pcntl bcmath gd \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Instalar Composer globalmente
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Instalar Composer
+COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
-# Diretório da aplicação
+# Definir diretório de trabalho
 WORKDIR /var/www/html
 
-# Copiar arquivos de Composer primeiro
+# Copiar arquivos de dependência do PHP
 COPY composer.json composer.lock ./
 
 # Instalar dependências PHP
 RUN composer install --no-dev --optimize-autoloader
 
-# Agora copiar todo o código da aplicação
+# Copiar todo o código da aplicação
 COPY . .
 
-# Definir permissões
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-
-# Build assets do Node.js
+# Instalar dependências Node.js e build dos assets
 RUN npm install
 RUN npm run build
 
-# Rodar migrations (se quiser forçar)
+# Definir permissões corretas para Laravel
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Rodar migrations (opcional, força execução)
 RUN php artisan migrate --force
 
-# --- Stage 2: Produção ---
+# =========================
+# Stage 2: Production
+# =========================
 FROM php:8.1-fpm
 
 WORKDIR /var/www/html
 
-# Copiar tudo do stage build
+# Copiar código e dependências do stage de build
 COPY --from=build /var/www/html /var/www/html
 
-# Definir permissões corretas
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Instalar extensões necessárias no runtime
+RUN apt-get update && apt-get install -y \
+    libzip-dev \
+    libonig-dev \
+    libicu-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    && docker-php-ext-install pdo_mysql mbstring intl zip exif pcntl bcmath gd \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Expor porta do PHP-FPM
 EXPOSE 9000
 
-# Comando padrão para rodar PHP-FPM
+# Entrypoint
 CMD ["php-fpm"]
