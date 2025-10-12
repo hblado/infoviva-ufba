@@ -32,20 +32,17 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Definir diretório da aplicação
 WORKDIR /app
 
-# Copiar composer.json e composer.lock
+# Copiar composer.json e composer.lock antes (para cache)
 COPY composer.json composer.lock ./
+
+# Agora copiar todo o código (inclui artisan)
+COPY . .
 
 # Instalar dependências PHP
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-# Copiar package.json e package-lock.json
-COPY package*.json ./
-
 # Instalar dependências Node
 RUN npm install
-
-# Copiar toda a aplicação
-COPY . .
 
 # Build do front-end (Vite + Tailwind/DaisyUI)
 RUN npm run build
