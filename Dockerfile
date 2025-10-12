@@ -1,31 +1,34 @@
 # --- Stage 1: Build ---
 FROM php:8.1-fpm AS build
 
-# Instalar extensões e dependências do sistema
+# Instalar dependências do sistema e extensões PHP
 RUN apt-get update && apt-get install -y \
-    git unzip libzip-dev npm nodejs && \
-    docker-php-ext-install pdo pdo_mysql zip
+    git unzip curl libzip-dev nodejs npm \
+    && docker-php-ext-install pdo pdo_mysql zip
 
-# Configurar diretório da aplicação
+# Instalar Composer globalmente
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Diretório da aplicação
 WORKDIR /var/www/html
 
-# Copiar arquivos composer
+# Copiar arquivos do Composer
 COPY composer.json composer.lock ./
 
 # Instalar dependências PHP
 RUN composer install --no-dev --optimize-autoloader
 
-# Copiar todo o código
+# Copiar todo o código da aplicação
 COPY . .
 
-# Instalar dependências Node e gerar assets
+# Instalar dependências Node e compilar assets
 RUN npm install
 RUN npm run build
 
-# Rodar migrations (opcional, mas cuidado com produção!)
+# Rodar migrations (ajustar se não quiser forçar em produção)
 RUN php artisan migrate --force
 
-# --- Stage 2: Serve ---
+# --- Stage 2: Produção ---
 FROM php:8.1-fpm
 
 WORKDIR /var/www/html
@@ -33,6 +36,11 @@ WORKDIR /var/www/html
 # Copiar tudo do stage build
 COPY --from=build /var/www/html /var/www/html
 
-# Expor porta e iniciar php-fpm
+# Definir permissões corretas
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Expor porta do PHP-FPM
 EXPOSE 9000
+
+# Comando padrão para rodar PHP-FPM
 CMD ["php-fpm"]
