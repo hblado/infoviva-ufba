@@ -1,0 +1,29 @@
+@font-face {
+  font-family: 'Kagoda';
+  src:  url('/fonts/Kagoda/Kagoda.woff2') format('woff2'),
+        url('/fonts/Kagoda/Kagoda.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+  @apply min-h-screen bg-base-100 text-base-content font-sans;
+}
+
+/* cores de apoio */
+:root {
+  --primary-color: #5d2975;
+  --secondary-color: #f9cee0;
+  --support-color-1: #cbb9d8;
+  --support-color-2: #cfe9e2;
+  --support-color-3: #f4e5db;
+}
+
+/* navbar */
+.navbar {
+  background-color: var(--secondary-color);
+}

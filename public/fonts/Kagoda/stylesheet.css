@@ -1,0 +1,36 @@
+@font-face {
+    font-family: 'Kagoda';
+    src: url('Kagoda.woff2') format('woff2'),
+        url('Kagoda.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Kagoda';
+    src: url('Kagoda-BoldItalic.woff2') format('woff2'),
+        url('Kagoda-BoldItalic.woff') format('woff');
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Kagoda';
+    src: url('Kagoda-Bold.woff2') format('woff2'),
+        url('Kagoda-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Kagoda';
+    src: url('Kagoda-Italic.woff2') format('woff2'),
+        url('Kagoda-Italic.woff') format('woff');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
