@@ -1,57 +1,73 @@
 # =========================
-# Stage 1: build
+# Dockerfile Laravel + Vite para Railway (PHP 8.1)
 # =========================
-FROM node:20 AS build
 
+# =========================
+# Stage 1: Build
+# =========================
+FROM php:8.1-fpm AS build
+
+# Instalar extensões PHP necessárias e dependências do sistema
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    curl \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \
+    zip \
+    nodejs \
+    npm \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+
+# Instalar Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Definir diretório da aplicação
 WORKDIR /app
+
+# Copiar composer.json e composer.lock
+COPY composer.json composer.lock ./
+
+# Instalar dependências PHP
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
 # Copiar package.json e package-lock.json
 COPY package*.json ./
 
-# Instalar dependências do npm
+# Instalar dependências Node
 RUN npm install
 
-# Copiar código da aplicação
+# Copiar toda a aplicação
 COPY . .
 
-# Build dos assets para produção
+# Build do front-end (Vite + Tailwind/DaisyUI)
 RUN npm run build
 
 # =========================
-# Stage 2: PHP / Laravel
+# Stage 2: Production
 # =========================
-FROM php:8.2-fpm
+FROM php:8.1-fpm
 
+# Instalar extensões PHP necessárias
+RUN apt-get update && apt-get install -y \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \
+    zip \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+
+# Definir diretório da aplicação
 WORKDIR /app
 
-# Instalar extensões do PHP necessárias
-RUN apt-get update && apt-get install -y \
-    libzip-dev unzip git curl \
-    && docker-php-ext-install pdo_mysql zip
+# Copiar arquivos PHP + vendor + assets do build
+COPY --from=build /app /app
 
-# Instalar composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+# Permissões (se necessário)
+RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
-# Copiar código da aplicação
-COPY . .
-
-# Copiar assets compilados do build
-COPY --from=build /app/public/build ./public/build
-
-# Instalar dependências PHP
-RUN COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader
-
-# Gerar key do Laravel se não existir
-#RUN php artisan key:generate
-
-# Rodar migrations (se o banco estiver disponível)
-# RUN php artisan migrate --force
-
-# Permissões
-RUN chown -R www-data:www-data /app \
-    && chmod -R 755 /app/storage /app/bootstrap/cache
-
-# Expor porta do FPM
+# Expor porta
 EXPOSE 9000
 
+# Comando final: PHP-FPM
 CMD ["php-fpm"]
