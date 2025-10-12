@@ -5,8 +5,12 @@ export default defineConfig({
     plugins: [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.js'],
-            refresh: true,
+            refresh: false,
         }),
     ],
+    build: {
+        outDir: 'public/build',
+        emptyOutDir: true,
+    },
     base: '/build/',
 });
