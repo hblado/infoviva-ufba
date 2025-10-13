@@ -5,7 +5,7 @@
 # =========================
 # Stage 1: Build
 # =========================
-FROM php:8.1-fpm AS assets_builder  <-- Mude 'build' para 'assets_builder'
+FROM php:8.1-fpm AS assets_builder
 
 # Instalar dependências do sistema e extensões PHP
 # ... (restante do código do Stage 1) ...
