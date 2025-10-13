@@ -86,6 +86,9 @@ COPY --from=assets_builder /app /app
 # Configuração de Logs e Permissões de Run-time (CORRIGIDO)
 # ---------------------------------------------
 
+# Permissões de leitura para todo o diretório da aplicação, garantindo que o Nginx possa ler assets
+RUN chmod -R 755 /app
+
 # Permissões do Laravel (Storage e Cache)
 RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache 
 
