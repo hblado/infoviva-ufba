@@ -28,6 +28,7 @@ COPY bootstrap bootstrap
 COPY artisan .
 
 # Instalar dependências PHP e JS
+RUN mkdir -p bootstrap/cache storage/framework storage/logs
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 RUN npm install && npm run build
 
