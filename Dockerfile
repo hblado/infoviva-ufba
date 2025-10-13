@@ -1,36 +1,32 @@
 # =========================
-# Stage 1: Build (Node + Composer)
+# Stage 1: Build
 # =========================
 FROM php:8.1-fpm AS build
 
-WORKDIR /app
-
-# Instalar dependências do sistema e extensões PHP
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git curl unzip zip build-essential \
-    libonig-dev libxml2-dev libzip-dev libpng-dev libjpeg-dev libfreetype6-dev \
-    nodejs npm \
+    git unzip curl libonig-dev libxml2-dev libzip-dev \
+    libpng-dev libjpeg-dev libfreetype6-dev build-essential \
+    zip nodejs npm \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
     && rm -rf /var/lib/apt/lists/*
 
+# Copiar todos os arquivos do projeto antes de instalar dependências
+WORKDIR /app
+COPY . .
+
+# Criar diretórios necessários
+RUN mkdir -p bootstrap/cache storage/framework storage/logs
+
 # Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copiar arquivos principais do Laravel
-COPY composer.json composer.lock package*.json vite.config.js ./
-COPY resources resources
-COPY public public
-COPY database database
-COPY routes routes
-COPY app app
-COPY bootstrap bootstrap
-COPY artisan .
-
-# Instalar dependências PHP e JS
-RUN mkdir -p bootstrap/cache storage/framework storage/logs
+# Instalar dependências PHP (agora o artisan já existe)
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+# Instalar dependências JS e gerar build do Vite
 RUN npm install && npm run build
+
 
 # =========================
 # Stage 2: Produção (PHP + Nginx)
