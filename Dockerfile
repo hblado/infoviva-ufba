@@ -88,11 +88,11 @@ COPY --from=assets_builder /app /app
 # Permissões do Laravel (Storage e Cache)
 RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache 
 
-# Permissão do Socket Unix (necessária para que o www-data crie o socket)
-RUN chown -R www-data:www-data /var/run 
+# Cria o DIRETÓRIO /var/log/fpm e garante permissão ao www-data
+RUN mkdir -p /var/log/fpm && chown -R www-data:www-data /var/log/fpm 
 
-# Cria o arquivo de log e dá permissão ao www-data para evitar erro 13
-RUN touch /var/log/php-fpm.log && chown www-data:www-data /var/log/php-fpm.log
+# Permissão do Socket Unix /var/run (para outras finalidades)
+RUN chown -R www-data:www-data /var/run 
 
 # ---------------------------------------------
 # Configurações Nginx, PHP-FPM e Supervisor
