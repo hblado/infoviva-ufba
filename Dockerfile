@@ -1,57 +1,57 @@
-# =========================
-# Stage 1: Build
-# =========================
-FROM php:8.1-fpm AS build
+# ===============================
+# Etapa 1: Build (Composer + Vite)
+# ===============================
+FROM node:20-slim AS build
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git unzip curl libonig-dev libxml2-dev libzip-dev \
-    libpng-dev libjpeg-dev libfreetype6-dev build-essential \
-    zip nodejs npm \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copiar todos os arquivos do projeto antes de instalar dependências
 WORKDIR /app
-COPY . .
 
-# Criar diretórios necessários
-RUN mkdir -p bootstrap/cache storage/framework storage/logs
+# Copiar arquivos
+COPY package*.json vite.config.js ./
+COPY composer.json composer.lock ./
+COPY resources ./resources
+COPY public ./public
+COPY routes ./routes
+COPY database ./database
+COPY artisan ./
+COPY bootstrap ./bootstrap
+COPY config ./config
 
-# Instalar Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+# Instalar PHP + Composer (temporário para build)
+RUN apt-get update && apt-get install -y php-cli php-mbstring php-xml php-bcmath php-curl unzip git curl && \
+    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Instalar dependências PHP (agora o artisan já existe)
+# Instalar dependências e gerar build
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-
-# Instalar dependências JS e gerar build do Vite
 RUN npm install && npm run build
 
-
-# =========================
-# Stage 2: Produção (PHP + Nginx)
-# =========================
-FROM php:8.1-fpm
+# ===============================
+# Etapa 2: Produção (Nginx + PHP-FPM)
+# ===============================
+FROM php:8.2-fpm-bullseye
 
 WORKDIR /app
 
-# Instalar dependências e extensões PHP
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    nginx supervisor libonig-dev libxml2-dev libzip-dev libpng-dev libjpeg-dev libfreetype6-dev zip \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
-    && rm -rf /var/lib/apt/lists/*
+# Instalar dependências do sistema e supervisor
+RUN apt-get update && apt-get install -y nginx supervisor libpng-dev libjpeg-dev libfreetype6-dev zip git curl && \
+    docker-php-ext-configure gd --with-freetype --with-jpeg && \
+    docker-php-ext-install pdo pdo_mysql bcmath gd && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copiar app do stage anterior
+# Copiar arquivos do build stage
 COPY --from=build /app /app
 
-# Copiar configs do Nginx e Supervisor
+# Criar diretórios necessários
+RUN mkdir -p bootstrap/cache storage/framework storage/logs && \
+    chown -R www-data:www-data /app/storage /app/bootstrap/cache
+
+# Copiar configs
 COPY .docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY .docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Permissões corretas
-RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
+# Limpeza e otimização
+RUN php artisan config:clear && php artisan route:clear && php artisan view:clear && php artisan optimize
 
 EXPOSE 8080
 
-CMD ["/usr/bin/supervisord"]
+# Comando final
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
