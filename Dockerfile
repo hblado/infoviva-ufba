@@ -50,7 +50,7 @@ COPY --from=build /app /app
 
 # Copiar configs do Nginx e Supervisor
 COPY .docker/nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY .docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY .docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Permissões corretas
 RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
