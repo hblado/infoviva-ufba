@@ -81,11 +81,17 @@ WORKDIR /app
 # Copiar todo o código + vendor + assets do stage de build
 COPY --from=assets_builder /app /app
 
-# Permissões
+# Permissões da aplicação
 RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
 # ---------------------------------------------
-# Configurações PHP-FPM (Novo! Para corrigir o log)
+# Configuração de Log e Permissões Adicionais (Novo!)
+# ---------------------------------------------
+# Cria o diretório de logs e o arquivo, dando permissão ao www-data
+RUN mkdir -p /var/log/fpm && touch /var/log/fpm/php-fpm.log && chown -R www-data:www-data /var/log/fpm
+
+# ---------------------------------------------
+# Configurações Nginx, PHP-FPM e Supervisor
 # ---------------------------------------------
 COPY .docker/php-fpm/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 
