@@ -1,0 +1,23 @@
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+
+# PHP / Laravel
+vendor
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
+
+# Laravel / Vite / Build
+/public/hot
+/public/storage
+
+# IDE / editor
+/.idea
+/.vscode
+/.fleet
