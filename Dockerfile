@@ -7,6 +7,7 @@
 # Stage 1: Build (Criação de Vendor e Assets)
 # =========================
 FROM php:8.1-fpm AS assets_builder
+ENTRYPOINT ["/bin/bash", "-c", ""] ; 
 
 # Instalar dependências do sistema e extensões PHP + Node/NPM
 RUN apt-get update && apt-get install -y --no-install-recommends \
