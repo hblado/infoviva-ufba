@@ -1,9 +1,10 @@
 # =========================
 # Dockerfile Laravel + Vite para Railway (PHP 8.1)
+# Versão Final com Nginx/Supervisor para servir assets
 # =========================
 
 # =========================
-# Stage 1: Build (Criação dos Assets)
+# Stage 1: Build (Criação de Vendor e Assets)
 # =========================
 FROM php:8.1-fpm AS assets_builder
 
@@ -30,11 +31,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # ----------------------------
-# 1. Composer
+# 1. Composer (ORDEM CORRIGIDA)
 # ----------------------------
 
-# Copiar arquivos do Composer (para aproveitar o cache do Docker)
+# Copiar arquivos do Composer (para otimizar o cache da camada)
 COPY composer.json composer.lock ./
+
+# Copiar todo o código-fonte (NECESSÁRIO para o composer install)
+COPY . .
 
 # Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -44,21 +48,15 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-di
 # 2. NPM / Assets
 # ----------------------------
 
-# Copiar package.json e package-lock.json
-COPY package*.json ./
-
-# Instalar dependências Node
+# Instalar dependências Node (package.json e package-lock.json já estão aqui devido ao 'COPY . .')
 RUN npm install
 
-# Copiar o restante do código (incluindo views, controllers, etc.)
-COPY . .
-
-# Gerar build dos assets (Vite + Tailwind/DaisyUI)
+# Gerar build dos assets (Vite + Tailwind/DaisyUI). Os arquivos vão para public/build
 RUN npm run build
 
 
 # =========================
-# Stage 2: Production (com Nginx e Supervisor - Resolvendo o CSS)
+# Stage 2: Production (com Nginx e Supervisor - RESOLVE O CSS)
 # =========================
 FROM php:8.1-fpm
 
@@ -90,7 +88,7 @@ RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
 # Configurações Nginx, PHP-FPM e Supervisor
 # ---------------------------------------------
 
-# Criar a pasta de sites do Nginx (se não existir)
+# Criar a pasta de sites do Nginx 
 RUN mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled
 
 # Copiar o arquivo de configuração Nginx default
