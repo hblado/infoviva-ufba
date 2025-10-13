@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     nodejs \
     npm \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql mbstring exif bcmath gd zip **pcntl** \
+    && docker-php-ext-install pdo_mysql mbstring exif bcmath gd zip pcntl \
     && rm -rf /var/lib/apt/lists/*
 
 # Definir diretório da aplicação
