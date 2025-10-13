@@ -118,6 +118,10 @@ RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 # Adicionar a configuração do Supervisor
 COPY .docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# --- Adição Radical: Força o Laravel a usar o path base '/' para assets ---
+ENV ASSET_URL=/
+# --------------------------------------------------------------------------
+
 # Expor a porta que o Nginx usará
 EXPOSE 8080
 
