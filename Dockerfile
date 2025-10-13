@@ -85,10 +85,11 @@ COPY --from=assets_builder /app /app
 RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
 # ---------------------------------------------
-# Configuração de Log e Permissões Adicionais (Novo!)
+# Configuração de Log e Permissões Adicionais (Final!)
 # ---------------------------------------------
-# Cria o diretório de logs e o arquivo, dando permissão ao www-data
-RUN mkdir -p /var/log/fpm && touch /var/log/fpm/php-fpm.log && chown -R www-data:www-data /var/log/fpm
+# Cria o arquivo de log no local exato e garante que o www-data seja o proprietário.
+# O mkdir -p /var/log/ deve garantir que a pasta exista.
+RUN touch /var/log/php-fpm.log && chown www-data:www-data /var/log/php-fpm.log
 
 # ---------------------------------------------
 # Configurações Nginx, PHP-FPM e Supervisor
