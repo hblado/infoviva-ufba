@@ -26,38 +26,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
     && rm -rf /var/lib/apt/lists/*
 
+# Definir diretório da aplicação
+WORKDIR /app
+
+# Copiar composer antes para cache
+COPY composer.json composer.lock ./
+
+# Instalar Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
 # Copiar package.json e package-lock.json
 COPY package*.json ./
 
 # Instalar dependências Node
 RUN npm install
 
-# Copiar os arquivos do Vite e do front-end
-COPY vite.config.js ./
-COPY resources resources
-
-# Gerar build dos assets
-RUN npm run build
-
-# Instalar Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# Definir diretório da aplicação
-WORKDIR /app
-
-# Copiar composer.json e composer.lock antes (para cache)
-COPY composer.json composer.lock ./
-
-# Agora copiar todo o código (inclui artisan)
+# Copiar o resto do código
 COPY . .
 
-# Instalar dependências PHP
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-
-# Instalar dependências Node
-RUN npm install
-
-# Build do front-end (Vite + Tailwind/DaisyUI)
+# Gerar build dos assets (Vite + Tailwind/DaisyUI)
 RUN npm run build
 
 # =========================
@@ -81,15 +69,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Definir diretório da aplicação
 WORKDIR /app
 
-# Copiar arquivos PHP + vendor + assets do build
+# Copiar código, vendor e assets do build
 COPY --from=build /app /app
 
 # Permissões
 RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
-# Expor porta
-EXPOSE 9000
+# Expor porta do Railway
+EXPOSE 8080
 
-# Comando final: PHP-FPM
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
-
+# Rodar PHP-FPM em foreground (produção)
+CMD ["php-fpm"]
