@@ -1,7 +1,7 @@
 # =========================
 # Dockerfile Laravel + Vite para Railway (PHP 8.1)
 # Versão Final com Nginx/Supervisor para servir assets
-# =========================
+# =========================================================
 
 # =========================
 # Stage 1: Build (Criação de Vendor e Assets)
@@ -48,15 +48,12 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-di
 # 2. NPM / Assets (AJUSTADO PARA BUILD ROBUSTO)
 # ----------------------------
 
-# Limpar instalações antigas e garantir um build limpo
-RUN rm -rf node_modules
+# Instalar dependências Node de forma limpa, garantindo a execução dos binários
+RUN npm ci
 
-# Instalar dependências Node 
-RUN npm install
-
-# Gerar build dos assets (Vite + Tailwind/DaisyUI). 
-# Usamos 'env -i' para garantir que o build ignore variáveis de ambiente problemáticas.
-RUN env -i npm run build
+# Gerar build dos assets (Vite + Tailwind/DaisyUI)
+# O 'npm run build' é o comando correto para o Docker encontrar o 'vite'
+RUN npm run build
 
 
 # =========================
