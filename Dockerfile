@@ -7,7 +7,6 @@
 # Stage 1: Build (Criação de Vendor e Assets)
 # =========================
 FROM php:8.1-fpm AS assets_builder
-ENTRYPOINT ["/bin/bash", "-c", ""] ; 
 
 # Instalar dependências do sistema e extensões PHP + Node/NPM
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -32,7 +31,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # ----------------------------
-# 1. Composer (ORDEM CORRIGIDA)
+# 1. Composer
 # ----------------------------
 
 # Copiar arquivos do Composer (para otimizar o cache da camada)
@@ -49,7 +48,7 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-di
 # 2. NPM / Assets
 # ----------------------------
 
-# Instalar dependências Node (package.json e package-lock.json já estão aqui devido ao 'COPY . .')
+# Instalar dependências Node 
 RUN npm install
 
 # Gerar build dos assets (Vite + Tailwind/DaisyUI). Os arquivos vão para public/build
@@ -57,7 +56,7 @@ RUN npm run build
 
 
 # =========================
-# Stage 2: Production (com Nginx e Supervisor - RESOLVE O CSS)
+# Stage 2: Production (com Nginx e Supervisor)
 # =========================
 FROM php:8.1-fpm
 
@@ -82,24 +81,25 @@ WORKDIR /app
 # Copiar todo o código + vendor + assets do stage de build
 COPY --from=assets_builder /app /app
 
-# Permissões da aplicação
-RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
+# ---------------------------------------------
+# Configuração de Logs e Permissões de Run-time (CORRIGIDO)
+# ---------------------------------------------
 
-# ---------------------------------------------
-# Configuração de Log e Permissões Adicionais (Final!)
-# ---------------------------------------------
-# Cria o arquivo de log no local exato e garante que o www-data seja o proprietário.
-# O mkdir -p /var/log/ deve garantir que a pasta exista.
+# Permissões do Laravel (Storage e Cache)
+RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache 
+
+# Permissão do Socket Unix (necessária para que o www-data crie o socket)
+RUN chown -R www-data:www-data /var/run 
+
+# Cria o arquivo de log e dá permissão ao www-data para evitar erro 13
 RUN touch /var/log/php-fpm.log && chown www-data:www-data /var/log/php-fpm.log
 
 # ---------------------------------------------
 # Configurações Nginx, PHP-FPM e Supervisor
 # ---------------------------------------------
-COPY .docker/php-fpm/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 
-# ---------------------------------------------
-# Configurações Nginx, PHP-FPM e Supervisor
-# ---------------------------------------------
+# Copiar a configuração do PHP-FPM (para usar Socket Unix)
+COPY .docker/php-fpm/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 
 # Criar a pasta de sites do Nginx 
 RUN mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled
