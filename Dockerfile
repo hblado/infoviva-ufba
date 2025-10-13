@@ -85,6 +85,11 @@ COPY --from=assets_builder /app /app
 RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
 # ---------------------------------------------
+# Configurações PHP-FPM (Novo! Para corrigir o log)
+# ---------------------------------------------
+COPY .docker/php-fpm/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
+
+# ---------------------------------------------
 # Configurações Nginx, PHP-FPM e Supervisor
 # ---------------------------------------------
 
