@@ -29,21 +29,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Definir diretório da aplicação
 WORKDIR /app
 
-# Copiar composer antes para cache
+# Copiar composer para cache
 COPY composer.json composer.lock ./
+
+# Copiar todo o código, incluindo artisan
+COPY . .
 
 # Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-# Copiar package.json e package-lock.json
+# Copiar package.json e package-lock.json (se ainda não copiados)
 COPY package*.json ./
 
 # Instalar dependências Node
 RUN npm install
-
-# Copiar o resto do código
-COPY . .
 
 # Gerar build dos assets (Vite + Tailwind/DaisyUI)
 RUN npm run build
@@ -69,7 +69,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Definir diretório da aplicação
 WORKDIR /app
 
-# Copiar código, vendor e assets do build
+# Copiar todo o código + vendor + assets do stage de build
 COPY --from=build /app /app
 
 # Permissões
