@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     nodejs \
     npm \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
+    && docker-php-ext-install pdo_mysql mbstring exif pcmath gd zip \
     && rm -rf /var/lib/apt/lists/*
 
 # Definir diretório da aplicação
@@ -37,7 +37,7 @@ WORKDIR /app
 # Copiar arquivos do Composer (para otimizar o cache da camada)
 COPY composer.json composer.lock ./
 
-# Copiar todo o código-fonte (NECESSÁRIO para o composer install)
+# Copiar todo o código-fonte (NECESSÁRIO para o composer install e build)
 COPY . .
 
 # Instalar Composer
@@ -45,14 +45,18 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
 # ----------------------------
-# 2. NPM / Assets
+# 2. NPM / Assets (AJUSTADO PARA BUILD ROBUSTO)
 # ----------------------------
+
+# Limpar instalações antigas e garantir um build limpo
+RUN rm -rf node_modules
 
 # Instalar dependências Node 
 RUN npm install
 
-# Gerar build dos assets (Vite + Tailwind/DaisyUI). Os arquivos vão para public/build
-RUN npm run build
+# Gerar build dos assets (Vite + Tailwind/DaisyUI). 
+# Usamos 'env -i' para garantir que o build ignore variáveis de ambiente problemáticas.
+RUN env -i npm run build
 
 
 # =========================
@@ -72,7 +76,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \        
     supervisor \   
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
+    && docker-php-ext-install pdo_mysql mbstring exif pcmath gd zip \
     && rm -rf /var/lib/apt/lists/*
 
 # Definir diretório da aplicação
