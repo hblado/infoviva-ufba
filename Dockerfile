@@ -1,129 +1,60 @@
 # =========================
-# Dockerfile Laravel + Vite para Railway (PHP 8.1)
-# Versão Final com Nginx/Supervisor para servir assets
-# =========================================================
-
+# Stage 1: Build (Node + Composer)
 # =========================
-# Stage 1: Build (Criação de Vendor e Assets)
-# =========================
-FROM php:8.1-fpm AS assets_builder
+FROM php:8.1-fpm AS build
 
-# Instalar dependências do sistema e extensões PHP + Node/NPM
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    unzip \
-    curl \
-    libonig-dev \
-    libxml2-dev \
-    libzip-dev \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    build-essential \
-    zip \
-    nodejs \
-    npm \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql mbstring exif bcmath gd zip pcntl \
-    && rm -rf /var/lib/apt/lists/*
-
-# Definir diretório da aplicação
 WORKDIR /app
 
-# ----------------------------
-# 1. Composer
-# ----------------------------
-
-# Copiar arquivos do Composer (para otimizar o cache da camada)
-COPY composer.json composer.lock ./
-
-# Copiar todo o código-fonte (NECESSÁRIO para o composer install e build)
-COPY . .
-
-# Instalar Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-
-# ----------------------------
-# 2. NPM / Assets (AJUSTADO PARA BUILD ROBUSTO)
-# ----------------------------
-
-# Instalar dependências Node de forma limpa, garantindo a execução dos binários
-RUN npm ci
-
-# Gerar build dos assets (Vite + Tailwind/DaisyUI)
-# O 'npm run build' é o comando correto para o Docker encontrar o 'vite'
-RUN npm run build
-
-
-# =========================
-# Stage 2: Production (com Nginx e Supervisor)
-# =========================
-FROM php:8.1-fpm
-
-# Instalar extensões PHP necessárias E Nginx e Supervisor
+# Instalar dependências do sistema e extensões PHP
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libonig-dev \
-    libxml2-dev \
-    libzip-dev \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    zip \
-    nginx \        
-    supervisor \   
+    git curl unzip zip build-essential \
+    libonig-dev libxml2-dev libzip-dev libpng-dev libjpeg-dev libfreetype6-dev \
+    nodejs npm \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
     && rm -rf /var/lib/apt/lists/*
 
-# Definir diretório da aplicação
+# Instalar Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Copiar arquivos principais do Laravel
+COPY composer.json composer.lock package*.json vite.config.js ./
+COPY resources resources
+COPY public public
+COPY database database
+COPY routes routes
+COPY app app
+COPY bootstrap bootstrap
+COPY artisan .
+
+# Instalar dependências PHP e JS
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+RUN npm install && npm run build
+
+# =========================
+# Stage 2: Produção (PHP + Nginx)
+# =========================
+FROM php:8.1-fpm
+
 WORKDIR /app
 
-# Copiar todo o código + vendor + assets do stage de build
-COPY --from=assets_builder /app /app
+# Instalar dependências e extensões PHP
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    nginx supervisor libonig-dev libxml2-dev libzip-dev libpng-dev libjpeg-dev libfreetype6-dev zip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
+    && rm -rf /var/lib/apt/lists/*
 
-# ---------------------------------------------
-# Configuração de Logs e Permissões de Run-time (CORRIGIDO)
-# ---------------------------------------------
+# Copiar app do stage anterior
+COPY --from=build /app /app
 
-# Permissões de leitura para todo o diretório da aplicação, garantindo que o Nginx possa ler assets
-RUN chmod -R 755 /app
+# Copiar configs do Nginx e Supervisor
+COPY .docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY .docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Permissões do Laravel (Storage e Cache)
-RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache 
+# Permissões corretas
+RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
-# Cria o DIRETÓRIO /var/log/fpm e garante permissão ao www-data
-RUN mkdir -p /var/log/fpm && chown -R www-data:www-data /var/log/fpm 
-
-# Permissão do Socket Unix /var/run (para outras finalidades)
-RUN chown -R www-data:www-data /var/run 
-
-# ---------------------------------------------
-# Configurações Nginx, PHP-FPM e Supervisor
-# ---------------------------------------------
-
-# Copiar a configuração do PHP-FPM (para usar Socket Unix)
-COPY .docker/php-fpm/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
-
-# Criar a pasta de sites do Nginx 
-RUN mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled
-
-# Copiar o arquivo de configuração Nginx default
-COPY .docker/nginx/default.conf /etc/nginx/sites-available/default
-
-# Remover o link simbólico padrão e criar o nosso
-RUN rm -f /etc/nginx/sites-enabled/default
-RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-
-# Adicionar a configuração do Supervisor
-COPY .docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-# --- Adição Radical: Força o Laravel a usar o path base '/' para assets ---
-ENV ASSET_URL=/
-# --------------------------------------------------------------------------
-
-# Expor a porta que o Nginx usará
 EXPOSE 8080
 
-# Rodar Supervisor para gerenciar Nginx e PHP-FPM (Processo principal)
-CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["/usr/bin/supervisord"]
