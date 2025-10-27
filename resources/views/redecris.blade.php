@@ -13,10 +13,10 @@
 
             <div class="flex flex-col sm:flex-row justify-center gap-4">
             <a href="https://vocesdemujeres.com/sign-up-expert" class="btn btn-primary btn-wide">
-                💬 Cadastrar-se
+                Cadastrar-se
             </a>
             <a href="https://vocesdemujeres.com/search" class="btn btn-outline btn-primary btn-wide">
-                🔍 Procurar Especialista
+                Procurar Especialista
             </a>
             </div>
         </div>
@@ -50,17 +50,14 @@
             <h2 class="text-2xl font-bold text-pink-700 mb-10">Como funciona</h2>
             <div class="grid gap-6 md:grid-cols-3">
                 <div class="card bg-white shadow-lg p-6">
-                    <div class="text-4xl mb-4">📊</div>
                     <h3 class="font-semibold text-lg mb-2">Mapeamento Científico</h3>
                     <p>Integra informações sobre pesquisas, instituições, autoras e indicadores relacionados à violência contra a mulher.</p>
                 </div>
                 <div class="card bg-white shadow-lg p-6">
-                    <div class="text-4xl mb-4">🤝</div>
                     <h3 class="font-semibold text-lg mb-2">Colaboração em Rede</h3>
                     <p>Conecta pesquisadoras e pesquisadores, fortalecendo a troca de conhecimento e a construção coletiva.</p>
                 </div>
                 <div class="card bg-white shadow-lg p-6">
-                    <div class="text-4xl mb-4">🔍</div>
                     <h3 class="font-semibold text-lg mb-2">Busca Avançada</h3>
                     <p>Permite localizar especialistas, projetos e temas específicos em poucos cliques.</p>
                 </div>
