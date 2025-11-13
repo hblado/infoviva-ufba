@@ -1,0 +1,62 @@
+[
+    {
+        "question": "Quem mantém a plataforma?",
+        "answer": "A Info Viva é vinculada ao LabRecrie/UFBA, com recursos financiados para sua criação provenientes do Edital Jovem Pesquisador (2024), da Pró-Reitoria de Pesquisa e Pós-Graduação (PRPPG), da Universidade Federal da Bahia."
+    },
+    {
+        "question": "A Info Viva oferece atendimento direto a casos?",
+        "answer": "Não. A plataforma não é um serviço de emergência nem substitui a Rede de Atendimento. Nosso foco é informação qualificada, navegação de serviços e formação sobre direitos da mulher. Em situação de risco imediato, procure os serviços de atenção e a rede local da sua cidade/estado."
+    },
+    {
+        "question": "Como uso os mapas?",
+        "answer": "Você pode filtrar por tipo de serviço, território e temas. Cada ponto possui uma ficha com endereço, horários e canais oficiais (quando disponíveis). Os mapas priorizam dados públicos e fontes oficiais e indicam a data da última atualização."
+    },
+    {
+        "question": "Como encontro materiais formativos?",
+        "answer": "Em Fontes de Informação, a partir do tema/assunto tema (direitos, prevenção, saúde, justiça, assistência, segurança, educação), nível de leitura e formato (cartilha, vídeo, guia rápido, glossário etc.)."
+    },
+    {
+        "question": "A plataforma tem versões para celular e leitores de tela?",
+        "answer": "Sim. O site é responsivo e segue diretrizes de acessibilidade (WCAG) e linguagem simples. Seguimos aprimorando contrastes, navegação por teclado e descrições alternativas."
+    },
+    {
+        "question": "De onde vêm os dados?",
+        "answer": "De fontes públicas, bases governamentais, pesquisas acadêmicas, algumas desenvolvidas no Projeto Macro, e parcerias institucionais. Cada painel indica fonte, metodologia e limitações."
+    },
+    {
+        "question": "Com que frequência os dados são atualizados?",
+        "answer": "Variável por fonte. Os painéis exibem a data de atualização e o período de cobertura. Itens descontinuados permanecem sinalizados para histórico e transparência."
+    },
+    {
+        "question": "Como citar a Info Viva?",
+        "answer": "UNIVERSIDADE FEDERAL DA BAHIA. LabRecrie. Plataforma Info Viva – LabRecrie/. Título/Seção consultada. Ano. URL. Acesso em: dia mês ano."
+    },
+    {
+        "question": "A Info Viva coleta dados pessoais?",
+        "answer": "Evitamos sempre que possível. Trabalhamos com dados agregados e/ou anonimizados. Em áreas com formulário (ex.: RedeCris Mulher), coletamos apenas informações já disponibilizados em âmbito público/acadêmico."
+    },
+    {
+        "question": "A plataforma armazena informações de casos individuais?",
+        "answer": "Não. Não realizamos prontuário nem acompanhamento de casos. Quando houver módulos de monitoramento em parceria com a Plataforma, eles seguirão consentimento, minimização e governança específicas, e serão claramente identificados."
+    },
+    {
+        "question": "Como envio uma correção ou solicito inclusão de informação?",
+        "answer": "Escreva para contatoinfoviva@gmail.com. Inclua fonte oficial, link e descrição."
+    },
+    {
+        "question": "Posso sugerir materiais?",
+        "answer": "Sim. Envie o material (ou link) com autoria, licença, data e público-alvo através de nosso e-mail contatoinfoviva@gmail.com. Daremos retorno após curadoria."
+    },
+    {
+        "question": "Como colaborar como pesquisador(a) ou instituição?",
+        "answer": "Temos chamadas de colaboração e acordos de cooperação. Escreva para contatoinfoviva@gmail.com e no assunto inclua PARCERIAS INFOVIVA."
+    },
+    {
+        "question": "A Info Viva cobre apenas a Bahia?",
+        "answer": "A plataforma nasce com foco na Bahia, mas foi construída para ser modular e replicável em outros contextos, em parceria com redes locais."
+    },
+    {
+        "question": "Como reporto um problema de acessibilidade?",
+        "answer": "Escreva para contatoinfoviva@gmail.com, e no assunto inclua ACESSIBILIDADE PLATAFORMA INFOVIVA, descrevendo o recurso assistivo utilizado e a página afetada."
+    }
+]

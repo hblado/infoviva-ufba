@@ -34,6 +34,7 @@
                     <a>Rede de Atenção à Mulher</a>
                     <ul class="p-2">
                         <li><a href="{{url("/ram/sobre")}}" >Sobre a Rede</a></li>
+                        <li><a href="{{url("/ram/nossa-pesquisa")}}" >Nossa Pesquisa</a></li>
                         <li><a href="{{url("/ram/violencia")}}">O que é violência contra a mulher?</a></li>
                         <li><a href="{{url("/ram/dados")}}">Indicadores e Dados Governamentais</a></li>
                         <li><a href="{{url("/ram/violencia-informativa")}}">O que é violência informativa?</a></li>
@@ -63,6 +64,7 @@
                 <summary>Rede de Atenção à Mulher</summary>
                 <ul class="p-2">
                     <li><a href="{{url("/ram/sobre")}}" >Sobre a Rede</a></li>
+                    <li><a href="{{url("/ram/nossa-pesquisa")}}" >Nossa Pesquisa</a></li>
                     <li><a href="{{url("/ram/violencia")}}" class="whitespace-nowrap">O que é violência contra a mulher?</a></li>
                     <li><a href="{{url("/ram/dados")}}" class="whitespace-nowrap">Indicadores e Dados Governamentais</a></li>
                     <li><a href="{{url("/ram/violencia-informativa")}}" class="whitespace-nowrap">O que é violência informativa?</a></li>

@@ -14,14 +14,14 @@
 
     <!-- Texto introdutório -->
     <div class="prose max-w-4xl mx-auto text-justify mb-12">
-      <p>
+      <p class="text-lg">
         A <strong>Rede de Enfrentamento</strong> e a <strong>Rede de Atendimento</strong> à mulher em situação de violência
         diferenciam-se em suas funções. Enquanto a primeira define políticas e estratégias integradas para prevenir e
         combater a violência e garantir direitos, a segunda executa o atendimento direto e os encaminhamentos por meio
         de serviços especializados e portas de entrada.
       </p>
 
-      <p>
+      <p class="text-lg">
         Embora municípios e estados brasileiros já venham articulando serviços junto à sociedade civil, a partir desta abordagem
         de rede, somente em <strong>2024</strong> foi sancionada a <strong>Lei nº 14.899</strong>, que estabelece a criação da Rede Estadual
         de Enfrentamento e da Rede de Atendimento à Mulher em Situação de Violência.
@@ -37,7 +37,7 @@
           Rede de Enfrentamento à Violência contra as Mulheres
         </div>
         <div class="collapse-content">
-          <p class="text-base-content/80 leading-relaxed">
+          <p class="text-base-content/80 leading-relaxed text-lg">
             É a articulação ampla entre instituições governamentais, não governamentais e a comunidade para planejar políticas,
             prevenção, combate, garantia de direitos e assistência. Foca em estratégias estruturais como campanhas,
             fluxos intersetoriais, responsabilização de agressores e empoderamento das mulheres, integrando os quatro eixos da
@@ -48,11 +48,11 @@
 
       <div class="collapse collapse-arrow bg-base-100 shadow-md">
         <input type="radio" name="rede" />
-        <div class="collapse-title text-xl font-semibold text-primary">
+        <div class="collapse-title text-lg font-semibold text-primary">
           Rede de Atendimento às Mulheres em Situação de Violência
         </div>
         <div class="collapse-content">
-          <p class="text-base-content/80 leading-relaxed">
+          <p class="text-base-content/80 leading-relaxed text-lg">
             É o conjunto de serviços que acolhe, orienta e encaminha as mulheres no dia a dia. Reúne setores de saúde, justiça,
             segurança pública e assistência social, com dois tipos de serviços:
           </p>

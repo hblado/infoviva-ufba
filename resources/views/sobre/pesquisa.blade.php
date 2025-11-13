@@ -9,7 +9,7 @@
     />
     <div>
       <h1 class="text-5xl font-bold text-primary">Origem e base de pesquisa</h1>
-      <p class="py-6">
+      <p class="py-6 text-xl">
         A Plataforma <strong>Info Viva</strong> nasce do percurso do <strong>LabRecrie </strong>— grupo de pesquisa
         certificado pela UFBA no Diretório de Grupos de Pesquisa/CNPq, com o<strong> Projeto Regime de Informação da
         Rede de Atendimento à Mulher</strong>, iniciado em 2024, —  que se consolida no âmbito da pesquisa internacional
@@ -17,7 +17,7 @@
         Lessa</strong> na Universidad Carlos III de Madrid, em parceria com o Instituto Universitário de Estudos de Gênero e
         o Departamento de Biblioteconomia.
       </p>
-      <p class="py-6">
+      <p class="py-6 text-xl">
         Desse processo resulta um framework para análise e aprimoramento das ações de informação
         em redes e serviços de atendimento à mulher, considerando características culturais, sociais e políticas
         dos territórios, e desse contexto metodológico de análise, surge o conceito de <strong>violência informativa.</strong>

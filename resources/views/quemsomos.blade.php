@@ -26,12 +26,25 @@
         </figure>
         <div class="card-body items-center text-center px-6 pb-8">
           <h2 class="card-title text-primary text-xl mb-3">{{ $person['title'] }}</h2>
+          @if ($person['tag'] == "coordenacao")
+            <div class="badge badge-soft badge-secondary">Coordenação</div>
+          @endif
+          @if ($person['tag'] == "colaboracao")
+            <div class="badge badge-outline badge-warning">Colaboração</div>
+          @endif
+          @if ($person['tag'] == "bolsista")
+            <div class="badge badge-outline badge-accent">Bolsista</div>
+          @endif
           <p class="text-sm text-base-content/80 leading-relaxed">{{ $person['text'] }}</p>
           <div class="card-actions justify-center mt-6 space-x-3 w-full">
+            @if (!empty($person['lattes']))
             <a href="{{ $person['lattes'] }}" target="_blank"
                class="btn btn-primary btn-sm w-24 text-white">Lattes</a>
+            @endif
+            @if (!empty($person['lattes']))
             <a href="{{ $person['orcid'] }}" target="_blank"
                class="btn btn-primary btn-sm w-24 text-white">ORCID</a>
+            @endif
           </div>
         </div>
       </div>

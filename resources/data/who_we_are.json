@@ -1,0 +1,18 @@
+[
+    {
+        "title": "Bruna Lessa",
+        "text": "Criadora da Plataforma Info Viva, professora e pesquisadora da UFBA. Pós-doutora em Documentação e Estudos Interdisciplinares sobre a Mulher (UC3M, Espanha). Doutora em Ciência da Informação e fundadora do LabRecriE (UFBA/CNPq).",
+        "orcid": "https://orcid.org/0000-0003-4485-203X",
+        "lattes": "http://lattes.cnpq.br/4775068257764378",
+        "imagePath": "bruna.png",
+        "tag": "coordenacao"
+    },
+    {
+        "title": "Eneida Santana",
+        "text": "Pesquisadora e coordenadora da Plataforma Info Viva. Bibliotecária-documentalista no IFBA, doutora em Difusão do Conhecimento (UFBA), mestre em Ciência da Informação e especialista em EaD. Atua com dados governamentais, tecnologias educacionais e redes complexas. Vice-líder do Ticase, integra o LabRecrie e fundou o LabDage.",
+        "orcid": "https://orcid.org/0000-0002-0884-4756",
+        "lattes": "http://lattes.cnpq.br/9832000444934835",
+        "imagePath": "eneida.png",
+        "tag": "coordenacao"
+    }
+]
